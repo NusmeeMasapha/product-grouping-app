@@ -159,7 +159,7 @@ def process():
         result = process_excel_data(filepath, threshold, sort_by)
         
         # Clean up uploaded file
-        # os.remove(filepath)
+        os.remove(filepath)
         
         if 'error' in result:
             return jsonify(result), 400
