@@ -131,22 +131,21 @@ def process_excel_data(file_path, similarity_threshold, sort_by):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('Index.html')
 
 @app.route('/process', methods=['POST'])
 def process():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file uploaded'}), 400
-    
-    file = request.files['file']
-    
-    if file.filename == '':
-        return jsonify({'error': 'No file selected'}), 400
-    
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid file type. Please upload .xlsx or .xls file'}), 400
-    
     try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not allowed_file(file.filename):
+            return jsonify({'error': 'Invalid file type. Please upload .xlsx or .xls file'}), 400
         # Save uploaded file
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -176,7 +175,10 @@ def process():
         return jsonify(result)
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"Error processing file: {error_details}")
+        return jsonify({'error': f'Processing error: {str(e)}'}), 500
 
 @app.route('/export/<filename>')
 def export(filename):
@@ -187,4 +189,11 @@ def export(filename):
         return jsonify({'error': str(e)}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    # Use gunicorn in production, flask dev server locally only
+    if os.environ.get('RENDER'):
+        # On Render, gunicorn will handle this
+        pass
+    else:
+        # Local development only
+        app.run(debug=False, host='0.0.0.0', port=port)
