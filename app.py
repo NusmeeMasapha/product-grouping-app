@@ -131,7 +131,7 @@ def process_excel_data(file_path, similarity_threshold, sort_by):
 
 @app.route('/')
 def index():
-    return render_template('Index.html')
+    return render_template('index.html')
 
 @app.route('/process', methods=['POST'])
 def process():
